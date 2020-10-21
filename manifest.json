@@ -3,7 +3,7 @@
     "name": "TwitterRevertRT",
     "author": "tsukumijima",
     "version": "1.0.0",
-    "description": "Twitter の RT の仕様を元に戻す（正確には引用ツイートの画面が表示された直後にツイートボタンをクリックする）拡張機能です。",
+    "description": "Twitter の RT の仕様を元に戻す（正確には引用ツイートの画面が表示された直後にツイートボタンをクリックする）Chrome 用拡張機能です。",
     "icons": {
         "16": "icon-16px.png",
         "48": "icon-48px.png",
