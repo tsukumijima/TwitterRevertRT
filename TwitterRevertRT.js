@@ -34,8 +34,6 @@ window.onload = function() {
 
             for (record of records) {
 
-                console.log(record['target'])
-
                 // 100ミリ秒後に実行
                 // モーダルが開くまで少しだけ待つ
                 setTimeout(function() {
@@ -43,13 +41,9 @@ window.onload = function() {
                     //　ツイートボタンを取得
                     const tweetButton = record['target'].querySelector('div[data-testid="tweetButton"]');
 
-                    console.log(isRightClick)
-                    console.log(tweetButton)
-
                     // 右クリックからは除外
                     if (isRightClick) {
                         isRightClick = false; // フラグを降ろす
-                        console.log('右クリックなので引用ツイート')
                         return;
                     }
 
@@ -63,12 +57,8 @@ window.onload = function() {
                             record['target'].querySelector('div[data-testid="attachments"] > div > div > span').textContent === '引用ツイート'
                         );
 
-                        console.log(isRetweet)
-
                         // モーダルがリツイート状態
                         if (isRetweet) {
-
-                            console.log('リツイート')
 
                             // ツイートボタンをクリック
                             tweetButton.click();
