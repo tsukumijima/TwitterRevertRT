@@ -23,6 +23,9 @@ window.onload = function() {
         // スクロールバーの幅を取得する
         // 参考: https://exiz.org/posts/javascript-scrollbar-width/
         function getScrollbarWidth() {
+            if (document.querySelector('body').style.marginRight !== '') {
+                return 0;  // スクロールバーが存在しない場合
+            }
             let element = document.createElement('div');
             element.style.visibility = 'hidden';
             element.style.overflow = 'scroll';
@@ -120,7 +123,7 @@ window.onload = function() {
                             background-color: rgba(255,255,255,1.00);
                             box-shadow: rgba(101, 119, 134, 0.2) 0px 0px 15px, rgba(101, 119, 134, 0.15) 0px 0px 3px 1px;
                             overflow: hidden;
-                            transition: height 0.09s ease;
+                            transition: height 0.1s ease;
                             z-index: 1000;
                         }
                         .revertrt-menuitem {
@@ -167,10 +170,14 @@ window.onload = function() {
 
                 // 高さをアニメーション
                 if (isGalleryMode) {  // ギャラリーモード時は意図的にアニメーションを無効化
-                    document.querySelector('.revertrt-menu').style.height = '98px';
+                    if (document.querySelector('.revertrt-menu') !== null) {
+                        document.querySelector('.revertrt-menu').style.height = '98px';
+                    }
                 }
                 setTimeout(function() {  // 少しだけ遅らせないと効かない
-                    document.querySelector('.revertrt-menu').style.height = '98px';
+                    if (document.querySelector('.revertrt-menu') !== null) {
+                        document.querySelector('.revertrt-menu').style.height = '98px';
+                    }
                 }, 10);
 
                 // カバークリック時
@@ -213,8 +220,12 @@ window.onload = function() {
                     }
 
                     // メニューを削除
-                    document.querySelector('.revertrt-style').remove();
-                    document.querySelector('.revertrt-menu').remove();
+                    if (document.querySelector('.revertrt-style') !== null) {
+                        document.querySelector('.revertrt-style').remove();
+                    }
+                    if (document.querySelector('.revertrt-menu') !== null) {
+                        document.querySelector('.revertrt-menu').remove();
+                    }
 
                     // モーダルを再表示
                     setTimeout(function() {
@@ -343,7 +354,6 @@ window.onload = function() {
             // 細画面かどうか
             let isThinWindow = window.innerWidth <= 704;  // 横幅が 704px 以下
 
-            console.log('発火')
             setTimeout(function() {
                 if (document.querySelector('.revertrt-style-hide') !== null) {
                     document.querySelector('.revertrt-style-hide').remove();
