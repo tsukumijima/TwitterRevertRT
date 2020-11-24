@@ -173,11 +173,6 @@ window.onload = function() {
                     document.querySelector('.revertrt-menu').style.height = '98px';
                 }, 10);
 
-                // ギャラリーモード時、カバーに色をつける
-                if (isGalleryMode && isThinWindow === false) {
-                    // document.querySelector('.revertrt-cover').style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
-                }
-
                 // カバークリック時
                 document.querySelector('.revertrt-cover').addEventListener('click', function() {
 
@@ -188,13 +183,15 @@ window.onload = function() {
                         document.querySelector('main[role="main"] > div > div > div:nth-child(2) > div > div > div > div > div[aria-label][role="button"]').click();
 
                         // 複製部分を削除
-                        document.querySelectorAll('main[role="main"]')[1].remove();
-                        if (document.querySelector('header[role="banner"]') !== null) {
-                            document.querySelector('header[role="banner"]').remove();
-                        }
-                        if (isGalleryMode) {  // ギャラリーモード時
-                            document.querySelector('main[role="main"]').style.display = '';
-                        }
+                        setTimeout(function() {
+                            document.querySelectorAll('main[role="main"]')[1].remove();
+                            if (document.querySelector('header[role="banner"]') !== null) {
+                                document.querySelector('header[role="banner"]').remove();
+                            }
+                            if (isGalleryMode) {  // ギャラリーモード時
+                                document.querySelector('main[role="main"]').style.display = '';
+                            }
+                        }, 100);
 
                         let count = 1;
                         let interval = setInterval(function() {
@@ -222,10 +219,17 @@ window.onload = function() {
                     // モーダルを再表示
                     setTimeout(function() {
                         if (isGalleryMode && isThinWindow === false) {
-                            document.querySelectorAll('div#layers > div')[2].remove();
+                            if (document.querySelectorAll('div#layers > div')[2] !== undefined &&
+                                document.querySelectorAll('div#layers > div')[2] !== null) {
+                                document.querySelectorAll('div#layers > div')[2].remove();
+                            }
                         }
-                        document.querySelector('.revertrt-cover').remove();
-                        document.querySelector('.revertrt-style-hide').remove();
+                        if (document.querySelector('.revertrt-cover') !== null) {
+                            document.querySelector('.revertrt-cover').remove();
+                        }
+                        if (document.querySelector('.revertrt-style-hide') !== null) {
+                            document.querySelector('.revertrt-style-hide').remove();
+                        }
                     }, 500);
                 });
 
@@ -271,10 +275,17 @@ window.onload = function() {
                             document.documentElement.scrollTop = scrolltop;
                         }
                         if (isGalleryMode && isThinWindow === false) {
-                            document.querySelectorAll('div#layers > div')[2].remove();
+                            if (document.querySelectorAll('div#layers > div')[2] !== undefined &&
+                                document.querySelectorAll('div#layers > div')[2] !== null) {
+                                document.querySelectorAll('div#layers > div')[2].remove();
+                            }
                         }
-                        document.querySelector('.revertrt-cover').remove();  // ツイート送信完了を待ってから削除
-                        document.querySelector('.revertrt-style-hide').remove();
+                        if (document.querySelector('.revertrt-cover') !== null) {
+                            document.querySelector('.revertrt-cover').remove();
+                        }
+                        if (document.querySelector('.revertrt-style-hide') !== null) {
+                            document.querySelector('.revertrt-style-hide').remove();
+                        }
                     }, 500);
                 });
 
@@ -324,6 +335,43 @@ window.onload = function() {
             });
 
         }, 500);
+
+        // 戻る/進むボタンが押されたとき
+        // 各要素が残ってたら後始末
+        window.addEventListener('popstate', function() {
+            
+            // 細画面かどうか
+            let isThinWindow = window.innerWidth <= 704;  // 横幅が 704px 以下
+
+            console.log('発火')
+            setTimeout(function() {
+                if (document.querySelector('.revertrt-style-hide') !== null) {
+                    document.querySelector('.revertrt-style-hide').remove();
+                }
+                if (document.querySelector('.revertrt-style') !== null) {
+                    document.querySelector('.revertrt-style').remove();
+                }
+                if (document.querySelector('.revertrt-cover') !== null) {
+                    document.querySelector('.revertrt-cover').remove();
+                }
+                if (document.querySelector('.revertrt-menu') !== null) {
+                    document.querySelector('.revertrt-menu').remove();
+                }
+                if (document.querySelectorAll('div#layers > div')[2] !== undefined &&
+                    document.querySelectorAll('div#layers > div')[2] !== null) {
+                    document.querySelectorAll('div#layers > div')[2].remove();
+                }
+                if (isThinWindow) {
+                    if (document.querySelectorAll('main[role="main"]')[1] !== undefined &&
+                        document.querySelectorAll('main[role="main"]')[1] !== null) {
+                        document.querySelectorAll('main[role="main"]')[1].remove();
+                    }
+                    if (document.querySelectorAll('header[role="banner"]').length > 1) {
+                        document.querySelectorAll('header[role="banner"]')[0].remove();
+                    }
+                }
+            }, 500);
+        });
 
     }, 500);
 }
