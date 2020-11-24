@@ -1,8 +1,24 @@
 window.onload = function() {
 
-    // 1秒後に実行
+    // 0.5秒後に実行
     // 間を空けないと要素がまだ生成されてないのでエラーになる
     setTimeout(function() {
+
+        // メニューの位置を取得する
+        function getPosition(retweetButton) {
+
+            // メニューの位置
+            const position_height = 98;
+            let position_top = Math.round(retweetButton.getBoundingClientRect().top + window.pageYOffset);
+            let position_right = Math.round(document.documentElement.clientWidth - retweetButton.getBoundingClientRect().right + getScrollbarWidth());
+
+            // ウインドウからはみ出ないように
+            if (position_top > ((window.pageYOffset + document.documentElement.clientHeight) - position_height)) {
+                position_top = (window.pageYOffset + document.documentElement.clientHeight) - position_height;
+            }
+
+            return [position_top, position_right];
+        }
 
         // スクロールバーの幅を取得する
         // 参考: https://exiz.org/posts/javascript-scrollbar-width/
@@ -16,14 +32,14 @@ window.onload = function() {
             return scrollbarWidth;
         }
 
-        // リツイートボタンがクリックされたときのイベントハンドラ
-        function TwitterRevertRT(event, isPictureMode) {
-
-            console.log(event)
-            console.log(isPictureMode)
+        // リツイートボタンがクリックされたときのイベントハンドラ (PC用)
+        function TwitterRevertRT(event, isGalleryMode) {
 
             // リツイートボタン
             let retweetButton = null;
+
+            // 細画面かどうか
+            let isThinWindow = window.innerWidth <= 704;  // 横幅が 704px 以下
 
             // クリックされた子要素から親要素に向かって巡っていく
             for (element of event.composedPath()) {
@@ -39,33 +55,62 @@ window.onload = function() {
             // 実際にリツイートボタンのときだけ
             if (retweetButton !== null) {
 
-                // メニューの位置
-                const position_height = 98;
-                let position_top = Math.round(retweetButton.getBoundingClientRect().top + window.pageYOffset);
-                let position_right = Math.round(document.documentElement.clientWidth - retweetButton.getBoundingClientRect().right + getScrollbarWidth());
+                // 位置を取得
+                let [position_top, position_right] = getPosition(retweetButton);
 
-                // ウインドウからはみ出ないように
-                if (position_top > ((window.pageYOffset + document.documentElement.clientHeight) - position_height)) {
-                    position_top = (window.pageYOffset + document.documentElement.clientHeight) - position_height;
-                }
-
-                // モーダルを一旦隠す
-                // 若干時間を空けないと実行できない
-                let interval = setInterval(function() {
-                    if (document.querySelector('div[aria-labelledby="modal-header"]') !== null) {
-                        // document.querySelector('div[aria-labelledby="modal-header"]').parentElement.style.opacity = 0;
-                        clearInterval(interval);
-                    }
-                }, 10);
-
-                // メニューを表示
+                // スタイル配置
                 document.querySelector('body').insertAdjacentHTML('beforeend', `
                     <style class="revertrt-style-hide">
                         /* モーダルが一瞬だけ表示されることがないよう CSS 側で隠す */
                         div#layers > div:nth-child(2) {
                             opacity: 0;
                         }
+                        @media screen and (max-width: 704px) {
+                            div[data-at-shortcutkeys] > main[role="main"]:nth-child(2) {
+                                display: none;
+                            }
+                        }
                     </style>
+                `);
+
+                // 細画面の場合、main 要素が書き換えられてツイート画面になってしまうため、
+                // 書き換えられる前の header 要素以下と main 要素以下を複製して一時的に再配置する
+                const scrolltop = document.documentElement.scrollTop;
+                if (isThinWindow) {
+                    if (document.querySelector('header[role="banner"]') !== null) {
+                        document.querySelector('header[role="banner"]').insertAdjacentElement('afterend', 
+                            document.querySelector('header[role="banner"]').cloneNode(true));
+                    }
+                    document.querySelector('main[role="main"]').insertAdjacentElement('afterend',
+                        document.querySelector('main[role="main"]').cloneNode(true));
+                    // スクロール量を復元
+                    setTimeout(function() {
+                        document.documentElement.scrollTop = scrolltop;
+                    }, 50);
+                    // ギャラリーモード時
+                    if (isGalleryMode) {
+                        document.querySelectorAll('main[role="main"]')[0].style.display = 'none';
+                        document.querySelectorAll('main[role="main"]')[1].style.display = 'flex';
+                    }
+                }
+
+                // ギャラリーモード&細画面でない
+                // こちらもツイートフォームのレイヤーが書き換えられてしまうため一時的に再配置
+                if (isGalleryMode && isThinWindow === false) {
+                    document.querySelectorAll('div#layers > div')[1].insertAdjacentElement('afterend',
+                        document.querySelectorAll('div#layers > div')[1].cloneNode(true));
+                }
+
+                // モーダルを一旦隠す
+                // 若干時間を空けないと実行できない
+                let interval = setInterval(function() {
+                    if (document.querySelector('div[aria-labelledby="modal-header"]') !== null) {
+                        clearInterval(interval);
+                    }
+                }, 10);
+
+                // メニューを表示
+                document.querySelector('body').insertAdjacentHTML('beforeend', `
                     <style class="revertrt-style">
                         .revertrt-menu {
                             position: absolute;
@@ -121,25 +166,53 @@ window.onload = function() {
                 `);
 
                 // 高さをアニメーション
-                if (isPictureMode) {  // 写真モード時は意図的にアニメーションを無効化
+                if (isGalleryMode) {  // ギャラリーモード時は意図的にアニメーションを無効化
                     document.querySelector('.revertrt-menu').style.height = '98px';
                 }
                 setTimeout(function() {  // 少しだけ遅らせないと効かない
                     document.querySelector('.revertrt-menu').style.height = '98px';
-                }, 10)
+                }, 10);
 
-                // 写真モード時、カバーに色をつける
-                if (isPictureMode) {
-                    document.querySelector('.revertrt-cover').style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+                // ギャラリーモード時、カバーに色をつける
+                if (isGalleryMode && isThinWindow === false) {
+                    // document.querySelector('.revertrt-cover').style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
                 }
 
                 // カバークリック時
                 document.querySelector('.revertrt-cover').addEventListener('click', function() {
 
-                    // モーダルを削除
-                    if (document.querySelector('div[aria-labelledby="modal-header"]') !== null &&
-                        document.querySelector('div[aria-labelledby="modal-header"]').previousElementSibling !== null) {
-                        document.querySelector('div[aria-labelledby="modal-header"]').previousElementSibling.click();
+                    // 細画面時
+                    if (isThinWindow) {
+
+                        // ツイートフォームを削除
+                        document.querySelector('main[role="main"] > div > div > div:nth-child(2) > div > div > div > div > div[aria-label][role="button"]').click();
+
+                        // 複製部分を削除
+                        document.querySelectorAll('main[role="main"]')[1].remove();
+                        if (document.querySelector('header[role="banner"]') !== null) {
+                            document.querySelector('header[role="banner"]').remove();
+                        }
+                        if (isGalleryMode) {  // ギャラリーモード時
+                            document.querySelector('main[role="main"]').style.display = '';
+                        }
+
+                        let count = 1;
+                        let interval = setInterval(function() {
+                            if (count > 12) {
+                                clearInterval(interval);
+                            }
+                            // スクロール量を復元
+                            document.documentElement.scrollTop = scrolltop;
+                            count++;
+                        }, 50);
+                        
+                    } else {
+
+                        // モーダルを削除
+                        if (document.querySelector('div[aria-labelledby="modal-header"]') !== null &&
+                            document.querySelector('div[aria-labelledby="modal-header"]').previousElementSibling !== null) {
+                            document.querySelector('div[aria-labelledby="modal-header"]').previousElementSibling.click();
+                        }
                     }
 
                     // メニューを削除
@@ -148,6 +221,9 @@ window.onload = function() {
 
                     // モーダルを再表示
                     setTimeout(function() {
+                        if (isGalleryMode && isThinWindow === false) {
+                            document.querySelectorAll('div#layers > div')[2].remove();
+                        }
                         document.querySelector('.revertrt-cover').remove();
                         document.querySelector('.revertrt-style-hide').remove();
                     }, 500);
@@ -156,8 +232,27 @@ window.onload = function() {
                 // 「リツイート」ボタンクリック時
                 document.querySelector('.revertrt-retweet').addEventListener('click', function() {
 
-                    // ツイートボタンをクリック
-                    document.querySelector('div[aria-labelledby="modal-header"] div[data-testid="tweetButton"]').click();
+                    // 細画面時
+                    if (isThinWindow) {
+
+                        // ツイートボタンをクリック
+                        document.querySelector('main[role="main"] div[data-testid="tweetButton"]').click();
+
+                        let count = 1;
+                        let interval = setInterval(function() {
+                            if (count > 20) {
+                                clearInterval(interval);
+                            }
+                            // スクロール量を復元
+                            document.documentElement.scrollTop = scrolltop;
+                            count++;
+                        }, 50);
+                        
+                    } else {
+
+                        // ツイートボタンをクリック
+                        document.querySelector('div[aria-labelledby="modal-header"] div[data-testid="tweetButton"]').click();
+                    }
 
                     // メニューを削除
                     document.querySelector('.revertrt-style').remove();
@@ -165,6 +260,19 @@ window.onload = function() {
 
                     // モーダルを再表示
                     setTimeout(function() {
+                        if (isThinWindow) {  // 複製部分を削除
+                            document.querySelectorAll('main[role="main"]')[1].remove();
+                            if (document.querySelector('header[role="banner"]') !== null) {
+                                document.querySelector('header[role="banner"]').remove();
+                            }
+                            if (isGalleryMode) {  // ギャラリーモード時
+                                document.querySelector('main[role="main"]').style.display = '';
+                            }
+                            document.documentElement.scrollTop = scrolltop;
+                        }
+                        if (isGalleryMode && isThinWindow === false) {
+                            document.querySelectorAll('div#layers > div')[2].remove();
+                        }
                         document.querySelector('.revertrt-cover').remove();  // ツイート送信完了を待ってから削除
                         document.querySelector('.revertrt-style-hide').remove();
                     }, 500);
@@ -173,10 +281,24 @@ window.onload = function() {
                 // 「コメントを付けてリツイート」ボタンクリック時
                 document.querySelector('.revertrt-quotetweet').addEventListener('click', function() {
 
+                    if (isThinWindow) {
+                        // 複製した要素を削除
+                        document.querySelectorAll('main[role="main"]')[1].remove();
+                        if (document.querySelector('header[role="banner"]') !== null) {
+                            document.querySelector('header[role="banner"]').remove();
+                        }
+                        if (isGalleryMode) {  // ギャラリーモード時
+                            document.querySelector('main[role="main"]').style.display = '';
+                        }
+                    }
+
                     // モーダルを開く
                     document.querySelector('.revertrt-style-hide').remove();
 
                     // メニューを削除
+                    if (isGalleryMode && isThinWindow === false) {
+                        document.querySelectorAll('div#layers > div')[2].remove();
+                    }
                     document.querySelector('.revertrt-style').remove();
                     document.querySelector('.revertrt-cover').remove();
                     document.querySelector('.revertrt-menu').remove();
@@ -184,24 +306,24 @@ window.onload = function() {
 
             }
         }
-
+        
         // 0.5秒間隔で監視し続ける
         setInterval(function() {
 
             // 見つかったリツイートボタンに手当たり次第イベントを追加していく
             document.querySelectorAll('div[data-testid=retweet]').forEach(function(element) {
 
-                // 写真モードかどうか
-                const isPictureMode = element.parentElement.parentElement.parentElement.parentElement.parentElement.
+                // ギャラリーモードかどうか
+                const isGalleryMode = element.parentElement.parentElement.parentElement.parentElement.parentElement.
                                       style.transitionProperty === 'background-color';
 
                 // addEventListener だと重複登録されてしまうのであえて onclick で
                 element.onclick = function(event) {
-                    TwitterRevertRT(event, isPictureMode);
+                    TwitterRevertRT(event, isGalleryMode);
                 }
             });
 
         }, 500);
 
-    }, 1000);
+    }, 500);
 }
