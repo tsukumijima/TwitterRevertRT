@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "TwitterRevertRT",
     "author": "tsukumijima",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "description": "Twitter の RT の仕様変更を元に戻す Chrome 用拡張機能です。",
     "icons": {
         "16": "icon-16px.png",
