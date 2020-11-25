@@ -369,7 +369,11 @@ window.onload = function() {
                 }
                 if (document.querySelectorAll('div#layers > div')[2] !== undefined &&
                     document.querySelectorAll('div#layers > div')[2] !== null) {
-                    document.querySelectorAll('div#layers > div')[2].remove();
+                    // ギャラリーモードかどうか
+                    if (document.querySelectorAll('div#layers > div')[1].querySelector('div[aria-labelledby="modal-header"] > div > div > div').
+                        style.transitionProperty === 'background-color') {
+                        document.querySelectorAll('div#layers > div')[2].remove();
+                    }
                 }
                 if (isThinWindow) {
                     if (document.querySelectorAll('main[role="main"]')[1] !== undefined &&
