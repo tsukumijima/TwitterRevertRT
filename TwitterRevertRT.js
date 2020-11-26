@@ -9,15 +9,18 @@ window.onload = function() {
 
             // メニューの位置
             const position_height = 98;
-            let position_top = Math.round(retweetButton.getBoundingClientRect().top + window.pageYOffset);
-            let position_right = Math.round(document.documentElement.clientWidth - retweetButton.getBoundingClientRect().right + getScrollbarWidth());
+            const boundingClientRect = retweetButton.getBoundingClientRect();
+            let position_top = Math.round(boundingClientRect.top + window.pageYOffset);
+            let position_right = Math.round(document.documentElement.clientWidth - boundingClientRect.right + getScrollbarWidth());
 
             // ウインドウからはみ出ないように
+            let isLowerEdge = false;
             if (position_top > ((window.pageYOffset + document.documentElement.clientHeight) - position_height)) {
-                position_top = (window.pageYOffset + document.documentElement.clientHeight) - position_height;
+                position_top = position_top + boundingClientRect.height - position_height;
+                isLowerEdge = true;
             }
 
-            return [position_top, position_right];
+            return [position_top, position_right, isLowerEdge];
         }
 
         // スクロールバーの幅を取得する
@@ -59,7 +62,7 @@ window.onload = function() {
             if (retweetButton !== null) {
 
                 // 位置を取得
-                let [position_top, position_right] = getPosition(retweetButton);
+                let [position_top, position_right, isLowerEdge] = getPosition(retweetButton);
 
                 // スタイル配置
                 document.querySelector('body').insertAdjacentHTML('beforeend', `
@@ -169,7 +172,7 @@ window.onload = function() {
                 `);
 
                 // 高さをアニメーション
-                if (isGalleryMode) {  // ギャラリーモード時は意図的にアニメーションを無効化
+                if (isLowerEdge) {  // ギャラリーモード時は意図的にアニメーションを無効化
                     if (document.querySelector('.revertrt-menu') !== null) {
                         document.querySelector('.revertrt-menu').style.height = '98px';
                     }
@@ -227,6 +230,11 @@ window.onload = function() {
                         document.querySelector('.revertrt-menu').remove();
                     }
 
+                    // カバーを削除
+                    if (document.querySelector('.revertrt-cover') !== null) {
+                        document.querySelector('.revertrt-cover').remove();
+                    }
+
                     // モーダルを再表示
                     setTimeout(function() {
                         if (isGalleryMode && isThinWindow === false) {
@@ -234,9 +242,6 @@ window.onload = function() {
                                 document.querySelectorAll('div#layers > div')[2] !== null) {
                                 document.querySelectorAll('div#layers > div')[2].remove();
                             }
-                        }
-                        if (document.querySelector('.revertrt-cover') !== null) {
-                            document.querySelector('.revertrt-cover').remove();
                         }
                         if (document.querySelector('.revertrt-style-hide') !== null) {
                             document.querySelector('.revertrt-style-hide').remove();
@@ -270,8 +275,17 @@ window.onload = function() {
                     }
 
                     // メニューを削除
-                    document.querySelector('.revertrt-style').remove();
-                    document.querySelector('.revertrt-menu').remove();
+                    if (document.querySelector('.revertrt-style') !== null) {
+                        document.querySelector('.revertrt-style').remove();
+                    }
+                    if (document.querySelector('.revertrt-menu') !== null) {
+                        document.querySelector('.revertrt-menu').remove();
+                    }
+
+                    // カバーを削除
+                    if (document.querySelector('.revertrt-cover') !== null) {
+                        document.querySelector('.revertrt-cover').remove();
+                    }
 
                     // モーダルを再表示
                     setTimeout(function() {
@@ -291,16 +305,13 @@ window.onload = function() {
                                 document.querySelectorAll('div#layers > div')[2].remove();
                             }
                         }
-                        if (document.querySelector('.revertrt-cover') !== null) {
-                            document.querySelector('.revertrt-cover').remove();
-                        }
                         if (document.querySelector('.revertrt-style-hide') !== null) {
                             document.querySelector('.revertrt-style-hide').remove();
                         }
                     }, 500);
                 });
 
-                // 「コメントを付けてリツイート」ボタンクリック時
+                // 「引用ツイート」ボタンクリック時
                 document.querySelector('.revertrt-quotetweet').addEventListener('click', function() {
 
                     if (isThinWindow) {
@@ -322,8 +333,8 @@ window.onload = function() {
                         document.querySelectorAll('div#layers > div')[2].remove();
                     }
                     document.querySelector('.revertrt-style').remove();
-                    document.querySelector('.revertrt-cover').remove();
                     document.querySelector('.revertrt-menu').remove();
+                    document.querySelector('.revertrt-cover').remove();
                 });
 
             }
