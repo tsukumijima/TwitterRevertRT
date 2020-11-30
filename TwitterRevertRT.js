@@ -85,6 +85,9 @@ window.onload = function() {
 
             // 実際にリツイートボタンのときだけ
             if (retweetButton !== null) {
+                
+                // 最初にスクロール位置を保存
+                const scrolltop = document.documentElement.scrollTop;
 
                 // 位置を取得
                 let [position_top, position_right, isLowerEdge] = getPosition(retweetButton, isGalleryMode);
@@ -97,7 +100,7 @@ window.onload = function() {
                             opacity: 0;
                         }
                         @media screen and (max-width: 704px) {
-                            div[data-at-shortcutkeys] > main[role="main"]:nth-child(2) {
+                            div[data-at-shortcutkeys] > main[role="main"]:not(.revertrt-clone-main) {
                                 display: none;
                             }
                         }
@@ -106,18 +109,31 @@ window.onload = function() {
 
                 // 細画面の場合、main 要素が書き換えられてツイート画面になってしまうため、
                 // 書き換えられる前の header 要素以下と main 要素以下を複製して一時的に再配置する
-                const scrolltop = document.documentElement.scrollTop;
                 if (isThinWindow) {
+
+                    // 要素を複製
                     let header = document.querySelector('header[role="banner"]');
                     if (header !== null) {
                         header.insertAdjacentElement('afterend', header.cloneNode(true));
                     }
                     let main = document.querySelector('main[role="main"]');
                     main.insertAdjacentElement('afterend', main.cloneNode(true));
+                    
+                    // 識別できるようにクラスを付与
+                    let header2 = document.querySelectorAll('header[role="banner"]')[1];
+                    if (header2 !== undefined && header2 !== null) {
+                        header2.classList.add('revertrt-clone-header');
+                    }
+                    let main2 = document.querySelectorAll('main[role="main"]')[1];
+                    if (main2 !== undefined && main2 !== null) {
+                        main2.classList.add('revertrt-clone-main');
+                    }
+
                     // スクロール量を復元
                     setTimeout(function() {
                         document.documentElement.scrollTop = scrolltop;
                     }, 50);
+
                     // ギャラリーモード時
                     if (isGalleryMode) {
                         document.querySelectorAll('main[role="main"]')[0].style.display = 'none';
@@ -131,7 +147,7 @@ window.onload = function() {
                     document.querySelectorAll('div#layers > div')[1].insertAdjacentElement('afterend',
                         document.querySelectorAll('div#layers > div')[1].cloneNode(true));
                     // 識別できるよう専用のクラスを付与
-                    document.querySelectorAll('div#layers > div')[2].classList.add('revertrt-fakegallery');
+                    document.querySelectorAll('div#layers > div')[2].classList.add('revertrt-clone-gallery');
                 }
 
                 // モーダルを一旦隠す
@@ -226,11 +242,22 @@ window.onload = function() {
                         // ツイートフォームを削除
                         document.querySelector('main[role="main"] > div > div > div:nth-child(2) > div > div > div > div > div[aria-label][role="button"]').click();
 
+                        // 細画面でギャラリーモードなら先に消しちゃう
+                        if (isGalleryMode) {
+                            if (revertrt_style_hide !== null) {
+                                revertrt_style_hide.remove();
+                            }
+                        }
+
                         // 複製部分を削除
                         setTimeout(function() {
-                            document.querySelectorAll('main[role="main"]')[1].remove();
-                            if (document.querySelector('header[role="banner"]') !== null) {
-                                document.querySelector('header[role="banner"]').remove();
+                            let revertrt_clone_header = document.querySelector('header.revertrt-clone-header');
+                            if (revertrt_clone_header !== null) {
+                                revertrt_clone_header.remove();
+                            }
+                            let revertrt_clone_main = document.querySelector('main.revertrt-clone-main');
+                            if (revertrt_clone_main !== null) {
+                                revertrt_clone_main.remove();
                             }
                             if (isGalleryMode) {  // ギャラリーモード時
                                 document.querySelector('main[role="main"]').style.display = '';
@@ -273,9 +300,9 @@ window.onload = function() {
                     // モーダルを再表示
                     setTimeout(function() {
                         if (isGalleryMode && isThinWindow === false) {
-                            let revertrt_fakegallery = document.querySelector('div#layers > div.revertrt-fakegallery');
-                            if (revertrt_fakegallery !== null) {
-                                revertrt_fakegallery.remove();
+                            let revertrt_clone_gallery = document.querySelector('div#layers > div.revertrt-clone-gallery');
+                            if (revertrt_clone_gallery !== null) {
+                                revertrt_clone_gallery.remove();
                             }
                         }
                         if (revertrt_style_hide !== null) {
@@ -325,9 +352,13 @@ window.onload = function() {
                     // モーダルを再表示
                     setTimeout(function() {
                         if (isThinWindow) {  // 複製部分を削除
-                            document.querySelectorAll('main[role="main"]')[1].remove();
-                            if (document.querySelector('header[role="banner"]') !== null) {
-                                document.querySelector('header[role="banner"]').remove();
+                            let revertrt_clone_header = document.querySelector('header.revertrt-clone-header');
+                            if (revertrt_clone_header !== null) {
+                                revertrt_clone_header.remove();
+                            }
+                            let revertrt_clone_main = document.querySelector('main.revertrt-clone-main');
+                            if (revertrt_clone_main !== null) {
+                                revertrt_clone_main.remove();
                             }
                             if (isGalleryMode) {  // ギャラリーモード時
                                 document.querySelector('main[role="main"]').style.display = '';
@@ -335,9 +366,9 @@ window.onload = function() {
                             document.documentElement.scrollTop = scrolltop;
                         }
                         if (isGalleryMode && isThinWindow === false) {
-                            let revertrt_fakegallery = document.querySelector('div#layers > div.revertrt-fakegallery');
-                            if (revertrt_fakegallery !== null) {
-                                revertrt_fakegallery.remove();
+                            let revertrt_clone_gallery = document.querySelector('div#layers > div.revertrt-clone-gallery');
+                            if (revertrt_clone_gallery !== null) {
+                                revertrt_clone_gallery.remove();
                             }
                         }
                         if (revertrt_style_hide !== null) {
@@ -351,9 +382,13 @@ window.onload = function() {
 
                     if (isThinWindow) {
                         // 複製した要素を削除
-                        document.querySelectorAll('main[role="main"]')[1].remove();
-                        if (document.querySelector('header[role="banner"]') !== null) {
-                            document.querySelector('header[role="banner"]').remove();
+                        let revertrt_clone_header = document.querySelector('header.revertrt-clone-header');
+                        if (revertrt_clone_header !== null) {
+                            revertrt_clone_header.remove();
+                        }
+                        let revertrt_clone_main = document.querySelector('main.revertrt-clone-main');
+                        if (revertrt_clone_main !== null) {
+                            revertrt_clone_main.remove();
                         }
                         if (isGalleryMode) {  // ギャラリーモード時
                             document.querySelector('main[role="main"]').style.display = '';
@@ -365,9 +400,9 @@ window.onload = function() {
 
                     // メニューを削除
                     if (isGalleryMode && isThinWindow === false) {
-                        let revertrt_fakegallery = document.querySelector('div#layers > div.revertrt-fakegallery');
-                        if (revertrt_fakegallery !== null) {
-                            revertrt_fakegallery.remove();
+                        let revertrt_clone_gallery = document.querySelector('div#layers > div.revertrt-clone-gallery');
+                        if (revertrt_clone_gallery !== null) {
+                            revertrt_clone_gallery.remove();
                         }
                     }
                     revertrt_style.remove();
@@ -392,6 +427,9 @@ window.onload = function() {
                         // リツイートボタンの親に modal-header があり、さらにそのひ孫要素のスタイルの transitionProperty が 'background-color' か
                         return element.closest('div[aria-labelledby="modal-header"]').firstElementChild.firstElementChild.firstElementChild.
                                style.transitionProperty === 'background-color';
+                    } else if (element.parentElement.parentElement.parentElement.parentElement.parentElement.
+                               style.transitionProperty === 'background-color') {
+                        return true;
                     } else {
                         return false;
                     }
@@ -429,18 +467,18 @@ window.onload = function() {
                 if (revertrt_menu !== null) {
                     revertrt_menu.remove();
                 }
-                let revertrt_fakegallery = document.querySelector('div#layers > div.revertrt-fakegallery');
-                if (revertrt_fakegallery !== null) {
-                    revertrt_fakegallery.remove();
+                let revertrt_clone_gallery = document.querySelector('div#layers > div.revertrt-clone-gallery');
+                if (revertrt_clone_gallery !== null) {
+                    revertrt_clone_gallery.remove();
                 }
                 if (isThinWindow) {
-                    let main = document.querySelectorAll('main[role="main"]');
-                    if (main[1] !== undefined && main[1] !== null) {
-                        main[1].remove();
+                    let revertrt_clone_header = document.querySelector('header.revertrt-clone-header');
+                    if (revertrt_clone_header !== null) {
+                        revertrt_clone_header.remove();
                     }
-                    let header = document.querySelectorAll('header[role="banner"]');
-                    if (header.length > 1) {
-                        header[0].remove();
+                    let revertrt_clone_main = document.querySelector('main.revertrt-clone-main');
+                    if (revertrt_clone_main !== null) {
+                        revertrt_clone_main.remove();
                     }
                 }
             }, 500);
