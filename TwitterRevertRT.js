@@ -385,8 +385,17 @@ window.onload = function() {
             document.querySelectorAll('div[data-testid=retweet]').forEach(function(element) {
 
                 // ギャラリーモードかどうか
-                const isGalleryMode = element.parentElement.parentElement.parentElement.parentElement.parentElement.
-                                      style.transitionProperty === 'background-color';
+                const isGalleryMode = (function(element) {
+                    let modal_header = element.closest('div[aria-labelledby="modal-header"]');
+                    if (modal_header !== null) {
+                        // 呪文（限界度MAX）
+                        // リツイートボタンの親に modal-header があり、さらにそのひ孫要素のスタイルの transitionProperty が 'background-color' か
+                        return element.closest('div[aria-labelledby="modal-header"]').firstElementChild.firstElementChild.firstElementChild.
+                               style.transitionProperty === 'background-color';
+                    } else {
+                        return false;
+                    }
+                }(element));
 
                 // addEventListener だと重複登録されてしまうのであえて onclick で
                 element.onclick = function(event) {
