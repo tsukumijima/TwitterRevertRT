@@ -130,6 +130,8 @@ window.onload = function() {
                 if (isGalleryMode && isThinWindow === false) {
                     document.querySelectorAll('div#layers > div')[1].insertAdjacentElement('afterend',
                         document.querySelectorAll('div#layers > div')[1].cloneNode(true));
+                    // 識別できるよう専用のクラスを付与
+                    document.querySelectorAll('div#layers > div')[2].classList.add('revertrt-fakegallery');
                 }
 
                 // モーダルを一旦隠す
@@ -271,9 +273,9 @@ window.onload = function() {
                     // モーダルを再表示
                     setTimeout(function() {
                         if (isGalleryMode && isThinWindow === false) {
-                            let layers = document.querySelectorAll('div#layers > div');
-                            if (layers[2] !== undefined && layers[2] !== null) {
-                                layers[2].remove();
+                            let revertrt_fakegallery = document.querySelector('div#layers > div.revertrt-fakegallery');
+                            if (revertrt_fakegallery !== null) {
+                                revertrt_fakegallery.remove();
                             }
                         }
                         if (revertrt_style_hide !== null) {
@@ -333,9 +335,9 @@ window.onload = function() {
                             document.documentElement.scrollTop = scrolltop;
                         }
                         if (isGalleryMode && isThinWindow === false) {
-                            let layers = document.querySelectorAll('div#layers > div');
-                            if (layers[2] !== undefined && layers[2] !== null) {
-                                layers[2].remove();
+                            let revertrt_fakegallery = document.querySelector('div#layers > div.revertrt-fakegallery');
+                            if (revertrt_fakegallery !== null) {
+                                revertrt_fakegallery.remove();
                             }
                         }
                         if (revertrt_style_hide !== null) {
@@ -363,7 +365,10 @@ window.onload = function() {
 
                     // メニューを削除
                     if (isGalleryMode && isThinWindow === false) {
-                        document.querySelectorAll('div#layers > div')[2].remove();
+                        let revertrt_fakegallery = document.querySelector('div#layers > div.revertrt-fakegallery');
+                        if (revertrt_fakegallery !== null) {
+                            revertrt_fakegallery.remove();
+                        }
                     }
                     revertrt_style.remove();
                     revertrt_menu.remove();
@@ -415,12 +420,9 @@ window.onload = function() {
                 if (revertrt_menu !== null) {
                     revertrt_menu.remove();
                 }
-                let layers = document.querySelectorAll('div#layers > div');
-                if (layers[2] !== undefined && layers[2] !== null) {
-                    // ギャラリーモードかどうか
-                    if (layers[1].querySelector('div[aria-labelledby="modal-header"] > div > div > div').style.transitionProperty === 'background-color') {
-                        layers[2].remove();
-                    }
+                let revertrt_fakegallery = document.querySelector('div#layers > div.revertrt-fakegallery');
+                if (revertrt_fakegallery !== null) {
+                    revertrt_fakegallery.remove();
                 }
                 if (isThinWindow) {
                     let main = document.querySelectorAll('main[role="main"]');
