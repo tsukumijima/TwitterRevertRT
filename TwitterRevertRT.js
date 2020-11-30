@@ -39,6 +39,33 @@ window.onload = function() {
         // リツイートボタンがクリックされたときのイベントハンドラ (PC用)
         function TwitterRevertRT(event, isGalleryMode) {
 
+            // テーマの背景の色を取得
+            const theme_background = getComputedStyle(document.body).backgroundColor;
+
+            // テーマのテキストの色を取得
+            const theme_color = (function(theme_background) {
+                switch (theme_background) {
+                    case 'rgb(255, 255, 255)':
+                        return 'rgb(15, 20, 25)';
+                    case 'rgb(21, 32, 43)':
+                        return 'rgb(255, 255, 255)';
+                    case 'rgb(0, 0, 0)':
+                        return 'rgb(217, 217, 217)';
+                }
+            }(theme_background));
+
+            // テーマの boxshadow の色
+            const theme_boxshadow = (function(theme_background) {
+                switch (theme_background) {
+                    case 'rgb(255, 255, 255)':
+                        return 'rgba(101, 119, 134, 0.2)';
+                    case 'rgb(21, 32, 43)':
+                        return 'rgba(136, 153, 166, 0.2)';
+                    case 'rgb(0, 0, 0)':
+                        return 'rgba(255, 255, 255, 0.2)';
+                }
+            }(theme_background));
+
             // リツイートボタン
             let retweetButton = null;
 
@@ -121,8 +148,9 @@ window.onload = function() {
                             width: 150px;
                             height: 0px;
                             border-radius: 4px;
-                            background-color: rgba(255,255,255,1.00);
-                            box-shadow: rgba(101, 119, 134, 0.2) 0px 0px 15px, rgba(101, 119, 134, 0.15) 0px 0px 3px 1px;
+                            background-color: ${theme_background};
+                            color: ${theme_color};
+                            box-shadow: ${theme_boxshadow} 0px 0px 15px, rgba(101, 119, 134, 0.15) 0px 0px 3px 1px;
                             overflow: hidden;
                             transition: height 0.1s ease;
                             z-index: 1000;
