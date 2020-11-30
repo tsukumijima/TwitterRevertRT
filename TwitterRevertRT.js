@@ -100,8 +100,11 @@ window.onload = function() {
                             opacity: 0;
                         }
                         @media screen and (max-width: 704px) {
+                            div[data-at-shortcutkeys] > header[role="banner"]:not(.revertrt-clone-header) {
+                                width: 0;
+                            }
                             div[data-at-shortcutkeys] > main[role="main"]:not(.revertrt-clone-main) {
-                                display: none;
+                                width: 0;
                             }
                         }
                     </style>
@@ -242,22 +245,19 @@ window.onload = function() {
                         // ツイートフォームを削除
                         document.querySelector('main[role="main"] > div > div > div:nth-child(2) > div > div > div > div > div[aria-label][role="button"]').click();
 
-                        // 細画面でギャラリーモードなら先に消しちゃう
-                        if (isGalleryMode) {
-                            if (revertrt_style_hide !== null) {
-                                revertrt_style_hide.remove();
-                            }
-                        }
-
                         // 複製部分を削除
+                        let revertrt_clone_header = document.querySelector('header.revertrt-clone-header');
+                        if (revertrt_clone_header !== null) {
+                            revertrt_clone_header.remove();
+                        }
                         setTimeout(function() {
-                            let revertrt_clone_header = document.querySelector('header.revertrt-clone-header');
-                            if (revertrt_clone_header !== null) {
-                                revertrt_clone_header.remove();
-                            }
                             let revertrt_clone_main = document.querySelector('main.revertrt-clone-main');
                             if (revertrt_clone_main !== null) {
                                 revertrt_clone_main.remove();
+                            }
+                            // 細画面なら先に消しちゃう
+                            if (revertrt_style_hide !== null) {
+                                revertrt_style_hide.remove();
                             }
                             if (isGalleryMode) {  // ギャラリーモード時
                                 document.querySelector('main[role="main"]').style.display = '';
@@ -350,12 +350,14 @@ window.onload = function() {
                     }
 
                     // モーダルを再表示
+                    if (isThinWindow) {
+                        let revertrt_clone_header = document.querySelector('header.revertrt-clone-header');
+                        if (revertrt_clone_header !== null) {
+                            revertrt_clone_header.remove();
+                        }
+                    }
                     setTimeout(function() {
                         if (isThinWindow) {  // 複製部分を削除
-                            let revertrt_clone_header = document.querySelector('header.revertrt-clone-header');
-                            if (revertrt_clone_header !== null) {
-                                revertrt_clone_header.remove();
-                            }
                             let revertrt_clone_main = document.querySelector('main.revertrt-clone-main');
                             if (revertrt_clone_main !== null) {
                                 revertrt_clone_main.remove();
