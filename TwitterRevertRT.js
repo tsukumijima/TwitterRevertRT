@@ -5,12 +5,12 @@ window.onload = function() {
     setTimeout(function() {
 
         // メニューの位置を取得する
-        function getPosition(retweetButton, isGalleryMode) {
+        function getPosition(retweetButton, isThinWindow, isGalleryMode) {
 
             // メニューの位置
             const position_height = 98;
             const boundingClientRect = retweetButton.getBoundingClientRect();
-            const scrollbarWidth = (isGalleryMode ? 0 : getScrollbarWidth());
+            const scrollbarWidth = (isThinWindow ? 0 : isGalleryMode ? 0 : getScrollbarWidth());
             let position_top = Math.round(boundingClientRect.top + window.pageYOffset);
             let position_right = Math.round(document.documentElement.clientWidth - boundingClientRect.right + scrollbarWidth);
 
@@ -90,7 +90,7 @@ window.onload = function() {
                 const scrolltop = document.documentElement.scrollTop;
 
                 // 位置を取得
-                let [position_top, position_right, isLowerEdge] = getPosition(retweetButton, isGalleryMode);
+                let [position_top, position_right, isLowerEdge] = getPosition(retweetButton, isThinWindow, isGalleryMode);
 
                 // スタイル配置
                 document.querySelector('body').insertAdjacentHTML('beforeend', `
