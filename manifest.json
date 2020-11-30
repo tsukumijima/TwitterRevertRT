@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "TwitterRevertRT",
     "author": "tsukumijima",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "description": "Twitter のリツイート（RT）・引用ツイートの仕様変更を以前の挙動に戻す Chrome 用拡張機能です。",
     "icons": {
         "16": "icon-16px.png",
